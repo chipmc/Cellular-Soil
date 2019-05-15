@@ -9,6 +9,7 @@
 */
 
 // v1.00 - Initial Release - SHT-10 functionality
+// v1.01 - Added Soil Sensor functionality
 
 
 
@@ -31,17 +32,21 @@ bool meterParticlePublish(void);
 void fullModemReset();
 void watchdogISR();
 void petWatchdog();
-#line 13 "/Users/chipmc/Documents/Maker/Particle/Projects/Cellular-Soil/src/Cellular-Soil.ino"
-#define SOFTWARERELEASENUMBER "1.00"               // Keep track of release numbers
+#line 14 "/Users/chipmc/Documents/Maker/Particle/Projects/Cellular-Soil/src/Cellular-Soil.ino"
+#define SOFTWARERELEASENUMBER "1.01"               // Keep track of release numbers
 
 // Included Libraries
 #include "math.h"
 #include "SHT1x.h"
+#include "vcs3i2c.h"
 
 // Specify data and clock connections and instantiate SHT1x object
 #define dataPin  C4
 #define clockPin C5
 SHT1x sht1x(dataPin, clockPin);
+
+// Initialize the Soil Sensor object
+SVCS3 vcs;
 
 namespace MEM_MAP {                                    // Moved to namespace instead of #define to limit scope
   enum Addresses {
@@ -103,6 +108,9 @@ char SignalString[64];                     // Used to communicate Wireless RSSI 
 const char* radioTech[8] = {"Unknown","None","WiFi","GSM","UMTS","CDMA","LTE","IEEE802154"};
 char temperatureString[16];
 char humidityString[16];
+char soilConductivityString[16];
+char soilTempInCString[16];
+char soilVolumetricWaterString[16];
 char batteryString[16];
 
 // Time Period Related Variables
@@ -116,8 +124,11 @@ int lowBattLimit;                                   // Trigger for Low Batt Stat
 bool lowPowerMode;                                  // Flag for Low Power Mode operations
 
 // This section is where we will initialize sensor specific variables, libraries and function prototypes
-float temperatureInC = 0;
+float temperatureInC = 0;                           // Temp / Humidity Sensor variables
 float relativeHumidity = 0;
+float soilConductivity = 0;                         // Soil sensor variables
+float soilTempInC = 0;
+float soilVolumetricWater = 0;
 
 
 void setup()                                                      // Note: Disconnected Setup()
@@ -141,6 +152,9 @@ void setup()                                                      // Note: Disco
   Particle.variable("lowPowerMode",lowPowerMode);
   Particle.variable("temperature", temperatureString);
   Particle.variable("humidity", humidityString);
+  Particle.variable("Conductivity",soilConductivityString);
+  Particle.variable("SoilTemp",soilTempInCString);
+  Particle.variable("VolumetricH2O",soilVolumetricWaterString);
   
   Particle.function("Measure-Now",measureNow);
   Particle.function("LowPowerMode",setLowPowerMode);
@@ -175,6 +189,8 @@ void setup()                                                      // Note: Disco
   lowPowerMode    = (0b00000001 & controlRegister);                     // Set the lowPowerMode
   solarPowerMode  = (0b00000100 & controlRegister);                     // Set the solarPowerMode
   verboseMode     = (0b00001000 & controlRegister);                     // Set the verboseMode
+
+  vcs.init(0x63);                                                       // Initialize the soil sensor
 
   PMICreset();                                                          // Executes commands that set up the PMIC for Solar charging - once we know the Solar Mode
 
@@ -310,7 +326,7 @@ void loop()
 void sendEvent()
 {
   char data[256];                                                         // Store the date in this character array - not global
-  snprintf(data, sizeof(data), "{\"Temperature\":%4.1f, \"Humidity\":%4.1f, \"Battery\":%i, \"Resets\":%i, \"Alerts\":%i}", temperatureInC, relativeHumidity, stateOfCharge,resetCount, alertCount);
+  snprintf(data, sizeof(data), "{\"Temperature\":%4.1f, \"Humidity\":%4.1f, \"soilConductivity\":%4.1f, \"soilTempInC\":%4.1f, \"soilVolumetricWater\":%4.1f, \"Battery\":%i, \"Resets\":%i, \"Alerts\":%i}", temperatureInC, relativeHumidity, soilConductivity, soilTempInC, soilVolumetricWater, stateOfCharge,resetCount, alertCount);
   Particle.publish("Cellular_Soil_Hook", data, PRIVATE);
   currentHourlyPeriod = Time.hour();                                      // Change the time period
   currentDailyPeriod = Time.day();
@@ -340,10 +356,26 @@ void UbidotsHandler(const char *event, const char *data)  // Looks at the respon
 bool takeMeasurements() {
   // Read values from the sensor
   temperatureInC = sht1x.readTemperatureC();
+  snprintf(temperatureString,sizeof(temperatureString), "%4.1f C", temperatureInC);
+
   relativeHumidity = sht1x.readHumidity();
+  snprintf(humidityString,sizeof(humidityString), "%4.1f %%", relativeHumidity);
+
+  vcs.newReading(); // start sensor reading
+  delay(100); //let sensor read data
+
+  soilConductivity = vcs.getEC();
+  snprintf(soilConductivityString, sizeof(soilConductivityString),"%4.1f mS/m", soilConductivity);
+
+  soilTempInC = vcs.getTemp();
+  snprintf(soilTempInCString, sizeof(soilTempInCString), "%4.1f C", soilTempInC);
+
+  soilVolumetricWater = vcs.getVWC();
+  snprintf(soilVolumetricWaterString, sizeof(soilVolumetricWaterString), "%4.1f %%", soilVolumetricWater);
 
   if (Cellular.ready()) getSignalStrength();                          // Test signal strength if the cellular modem is on and ready
   stateOfCharge = int(batteryMonitor.getSoC());                       // Percentage of full charge
+  snprintf(batteryString, sizeof(batteryString), "%i %%", stateOfCharge);
 
   return 1;
 }

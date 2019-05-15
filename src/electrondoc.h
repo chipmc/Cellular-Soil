@@ -29,12 +29,10 @@
  *                                              \___________________________/
  *
  *
- * D0 -
- * D1 -
- * D3 - CCS811 - intPin
- * D2 - !WAKE! pin for CCS811
- * SCL - i2c to sensor
- * SDA - i2c to sensor
+ * D3 - SHT-10 SDA
+ * C5 - SHT-10 SCL
+ * SCL - i2c to soil sensor
+ * SDA - i2c to soil sensor
   *
  *
  * This program is free software: you can redistribute it and/or modify
