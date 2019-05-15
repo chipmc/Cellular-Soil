@@ -5,35 +5,35 @@ Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
   0 .module_info  00000018  08080000  08080000  00010000  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
-  1 .text         00005808  08080018  08080018  00010018  2**2
+  1 .text         000057f8  08080018  08080018  00010018  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .backup       00000004  40024000  08085820  00024000  2**2
+  2 .backup       00000004  40024000  08085810  00024000  2**2
                   CONTENTS, ALLOC, LOAD, DATA
-  3 .data         000000f0  20000400  08085824  00030400  2**2
+  3 .data         000000f0  20000400  08085814  00030400  2**2
                   CONTENTS, ALLOC, LOAD, DATA
   4 .bss          00000768  200004f0  200004f0  000404f0  2**2
                   ALLOC
-  5 .module_info_suffix 00000028  08085914  08085914  00035914  2**0
+  5 .module_info_suffix 00000028  08085904  08085904  00035904  2**0
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
-  6 .module_info_crc 00000004  0808593c  0808593c  0003593c  2**0
+  6 .module_info_crc 00000004  0808592c  0808592c  0003592c  2**0
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
-  7 .debug_info   000ba3d5  00000000  00000000  00035940  2**0
+  7 .debug_info   000ba3d5  00000000  00000000  00035930  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_abbrev 00011e51  00000000  00000000  000efd15  2**0
+  8 .debug_abbrev 00011e51  00000000  00000000  000efd05  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_loc    00016cf1  00000000  00000000  00101b66  2**0
+  9 .debug_loc    00016cf1  00000000  00000000  00101b56  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_aranges 000023c0  00000000  00000000  00118857  2**0
+ 10 .debug_aranges 000023c0  00000000  00000000  00118847  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_ranges 00003858  00000000  00000000  0011ac17  2**0
+ 11 .debug_ranges 00003858  00000000  00000000  0011ac07  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_macro  00029642  00000000  00000000  0011e46f  2**0
+ 12 .debug_macro  00029642  00000000  00000000  0011e45f  2**0
                   CONTENTS, READONLY, DEBUGGING
- 13 .debug_line   0002a3e1  00000000  00000000  00147ab1  2**0
+ 13 .debug_line   0002a3e1  00000000  00000000  00147aa1  2**0
                   CONTENTS, READONLY, DEBUGGING
- 14 .debug_str    000a9526  00000000  00000000  00171e92  2**0
+ 14 .debug_str    000a9526  00000000  00000000  00171e82  2**0
                   CONTENTS, READONLY, DEBUGGING
- 15 .debug_frame  0000c900  00000000  00000000  0021b3b8  2**2
+ 15 .debug_frame  0000c900  00000000  00000000  0021b3a8  2**2
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -82,7 +82,7 @@ void* module_user_pre_init() {
  8080040:	bd08      	pop	{r3, pc}
  8080042:	bf00      	nop
  8080044:	20000400 	.word	0x20000400
- 8080048:	08085824 	.word	0x08085824
+ 8080048:	08085814 	.word	0x08085814
  808004c:	200004f0 	.word	0x200004f0
  8080050:	200004f0 	.word	0x200004f0
  8080054:	20000c58 	.word	0x20000c58
@@ -128,8 +128,8 @@ void module_user_init()
 }
  808007c:	bd70      	pop	{r4, r5, r6, pc}
  808007e:	bf00      	nop
- 8080080:	080857dc 	.word	0x080857dc
- 8080084:	08085818 	.word	0x08085818
+ 8080080:	080857d0 	.word	0x080857d0
+ 8080084:	0808580c 	.word	0x0808580c
 
 08080088 <module_user_setup>:
 
@@ -225,7 +225,7 @@ int measureNow(String command) // Function to force sending data in current hour
   else return 0;
 }
  80800d2:	bd08      	pop	{r3, pc}
- 80800d4:	08085314 	.word	0x08085314
+ 80800d4:	0808530a 	.word	0x0808530a
  80800d8:	20000531 	.word	0x20000531
 
 080800dc <_ZN11EEPROMClass4readEi.isra.15>:
@@ -955,7 +955,7 @@ void sendEvent()
 {
  8080480:	b510      	push	{r4, lr}
   char data[256];                                                         // Store the date in this character array - not global
-  snprintf(data, sizeof(data), "{\"Temperature\":%4.1f, \"Humidity\":%4.1f, \"soilConductivity\":%4.1f, \"soilTempInC\":%4.1f, \"soilVolumetricWater\":%4.1f, \"Battery\":%i, \"Resets\":%i, \"Alerts\":%i}", temperatureInC, relativeHumidity, soilConductivity, soilTempInC, soilVolumetricWater, stateOfCharge,resetCount, alertCount);
+  snprintf(data, sizeof(data), "{\"Temperature\":%4.1f, \"Humidity\":%4.1f, \"Soilconductivity\":%4.1f, \"Soiltemp\":%4.1f, \"Soilmoisture\":%4.1f, \"Battery\":%i, \"Resets\":%i, \"Alerts\":%i}", temperatureInC, relativeHumidity, soilConductivity, soilTempInC, soilVolumetricWater, stateOfCharge,resetCount, alertCount);
  8080482:	4b23      	ldr	r3, [pc, #140]	; (8080510 <_Z9sendEventv+0x90>)
     break;
   }
@@ -965,7 +965,7 @@ void sendEvent()
 {
  8080484:	b0d0      	sub	sp, #320	; 0x140
   char data[256];                                                         // Store the date in this character array - not global
-  snprintf(data, sizeof(data), "{\"Temperature\":%4.1f, \"Humidity\":%4.1f, \"soilConductivity\":%4.1f, \"soilTempInC\":%4.1f, \"soilVolumetricWater\":%4.1f, \"Battery\":%i, \"Resets\":%i, \"Alerts\":%i}", temperatureInC, relativeHumidity, soilConductivity, soilTempInC, soilVolumetricWater, stateOfCharge,resetCount, alertCount);
+  snprintf(data, sizeof(data), "{\"Temperature\":%4.1f, \"Humidity\":%4.1f, \"Soilconductivity\":%4.1f, \"Soiltemp\":%4.1f, \"Soilmoisture\":%4.1f, \"Battery\":%i, \"Resets\":%i, \"Alerts\":%i}", temperatureInC, relativeHumidity, soilConductivity, soilTempInC, soilVolumetricWater, stateOfCharge,resetCount, alertCount);
  8080486:	681b      	ldr	r3, [r3, #0]
 }
 
@@ -1050,7 +1050,7 @@ inline particle::Flags<TagT, ValueT>::Flags(Flag<TagT, ValueT> flag) :
  808052c:	200005bc 	.word	0x200005bc
  8080530:	08085044 	.word	0x08085044
  8080534:	2000050c 	.word	0x2000050c
- 8080538:	080850e0 	.word	0x080850e0
+ 8080538:	080850d6 	.word	0x080850d6
  808053c:	20000588 	.word	0x20000588
  8080540:	20000533 	.word	0x20000533
  8080544:	20000400 	.word	0x20000400
@@ -1466,24 +1466,24 @@ inline particle::Flags<TagT, ValueT>::Flags(Flag<TagT, ValueT> flag) :
  80807f0:	20000504 	.word	0x20000504
  80807f4:	2000059b 	.word	0x2000059b
  80807f8:	2000050c 	.word	0x2000050c
- 80807fc:	080850f3 	.word	0x080850f3
+ 80807fc:	080850e9 	.word	0x080850e9
  8080800:	200005f2 	.word	0x200005f2
- 8080804:	08085113 	.word	0x08085113
- 8080808:	0808510d 	.word	0x0808510d
+ 8080804:	08085109 	.word	0x08085109
+ 8080808:	08085103 	.word	0x08085103
  808080c:	20000534 	.word	0x20000534
  8080810:	20000584 	.word	0x20000584
  8080814:	20000530 	.word	0x20000530
  8080818:	20000590 	.word	0x20000590
- 808081c:	08085122 	.word	0x08085122
- 8080820:	08085139 	.word	0x08085139
+ 808081c:	08085118 	.word	0x08085118
+ 8080820:	0808512f 	.word	0x0808512f
  8080824:	20000508 	.word	0x20000508
  8080828:	20000400 	.word	0x20000400
- 808082c:	08085143 	.word	0x08085143
+ 808082c:	08085139 	.word	0x08085139
  8080830:	20000414 	.word	0x20000414
- 8080834:	08085148 	.word	0x08085148
+ 8080834:	0808513e 	.word	0x0808513e
  8080838:	200005c4 	.word	0x200005c4
  808083c:	20000404 	.word	0x20000404
- 8080840:	08085164 	.word	0x08085164
+ 8080840:	0808515a 	.word	0x0808515a
       else {
         EEPROM.write(MEM_MAP::resetCountAddr,0);            // Zero the ResetCount
  8080844:	f002 fcaa 	bl	808319c <_Z21__fetch_global_EEPROMv>
@@ -1618,11 +1618,11 @@ void UbidotsHandler(const char *event, const char *data)  // Looks at the respon
  80808dc:	bdf0      	pop	{r4, r5, r6, r7, pc}
  80808de:	bf00      	nop
  80808e0:	2000050c 	.word	0x2000050c
- 80808e4:	0808517c 	.word	0x0808517c
- 80808e8:	08085191 	.word	0x08085191
- 80808ec:	0808510d 	.word	0x0808510d
+ 80808e4:	08085172 	.word	0x08085172
+ 80808e8:	08085187 	.word	0x08085187
+ 80808ec:	08085103 	.word	0x08085103
  80808f0:	20000400 	.word	0x20000400
- 80808f4:	08085184 	.word	0x08085184
+ 80808f4:	0808517a 	.word	0x0808517a
 
 080808f8 <_Z12setSolarMode6String>:
   }
@@ -1717,14 +1717,14 @@ int setSolarMode(String command) // Function to force sending data in current ho
 }
  8080988:	b005      	add	sp, #20
  808098a:	bd30      	pop	{r4, r5, pc}
- 808098c:	08085314 	.word	0x08085314
+ 808098c:	0808530a 	.word	0x0808530a
  8080990:	200005e0 	.word	0x200005e0
  8080994:	200005f1 	.word	0x200005f1
  8080998:	2000050c 	.word	0x2000050c
- 808099c:	080851a3 	.word	0x080851a3
- 80809a0:	080851ba 	.word	0x080851ba
- 80809a4:	080851bc 	.word	0x080851bc
- 80809a8:	080851d2 	.word	0x080851d2
+ 808099c:	08085199 	.word	0x08085199
+ 80809a0:	080851b0 	.word	0x080851b0
+ 80809a4:	080851b2 	.word	0x080851b2
+ 80809a8:	080851c8 	.word	0x080851c8
 
 080809ac <_Z14setVerboseMode6String>:
 
@@ -1812,14 +1812,14 @@ int setVerboseMode(String command) // Function to force sending data in current 
 }
  8080a34:	b005      	add	sp, #20
  8080a36:	bd30      	pop	{r4, r5, pc}
- 8080a38:	08085314 	.word	0x08085314
+ 8080a38:	0808530a 	.word	0x0808530a
  8080a3c:	2000059b 	.word	0x2000059b
  8080a40:	200005f1 	.word	0x200005f1
  8080a44:	2000050c 	.word	0x2000050c
- 8080a48:	080851d7 	.word	0x080851d7
- 8080a4c:	080851ba 	.word	0x080851ba
- 8080a50:	080851e8 	.word	0x080851e8
- 8080a54:	080851d2 	.word	0x080851d2
+ 8080a48:	080851cd 	.word	0x080851cd
+ 8080a4c:	080851b0 	.word	0x080851b0
+ 8080a50:	080851de 	.word	0x080851de
+ 8080a54:	080851c8 	.word	0x080851c8
 
 08080a58 <_Z11setTimeZone6String>:
 
@@ -1935,8 +1935,8 @@ int setTimeZone(String command)
  8080af2:	bd70      	pop	{r4, r5, r6, pc}
  8080af4:	20000524 	.word	0x20000524
  8080af8:	2000050c 	.word	0x2000050c
- 8080afc:	080851fd 	.word	0x080851fd
- 8080b00:	08085211 	.word	0x08085211
+ 8080afc:	080851f3 	.word	0x080851f3
+ 8080b00:	08085207 	.word	0x08085207
 
 08080b04 <_Z15setLowPowerMode6String>:
 
@@ -2037,14 +2037,14 @@ int setLowPowerMode(String command)                                   // This is
 }
  8080b9c:	b004      	add	sp, #16
  8080b9e:	bd70      	pop	{r4, r5, r6, pc}
- 8080ba0:	08085314 	.word	0x08085314
- 8080ba4:	080851ba 	.word	0x080851ba
+ 8080ba0:	0808530a 	.word	0x0808530a
+ 8080ba4:	080851b0 	.word	0x080851b0
  8080ba8:	200005f1 	.word	0x200005f1
  8080bac:	2000050c 	.word	0x2000050c
- 8080bb0:	080851d2 	.word	0x080851d2
- 8080bb4:	08085216 	.word	0x08085216
+ 8080bb0:	080851c8 	.word	0x080851c8
+ 8080bb4:	0808520c 	.word	0x0808520c
  8080bb8:	2000059a 	.word	0x2000059a
- 8080bbc:	08085220 	.word	0x08085220
+ 8080bbc:	08085216 	.word	0x08085216
 
 08080bc0 <_ZN10CloudClass8variableIA14_cIA16_cEEEbRKT_DpRKT0_>:
         return _variable(varKey, (const char*)userVar, userVarType);
@@ -2528,35 +2528,35 @@ void setup()                                                      // Note: Disco
  8080e24:	20000531 	.word	0x20000531
  8080e28:	08080861 	.word	0x08080861
  8080e2c:	20000544 	.word	0x20000544
- 8080e30:	08085232 	.word	0x08085232
+ 8080e30:	08085228 	.word	0x08085228
  8080e34:	20000584 	.word	0x20000584
- 8080e38:	08085239 	.word	0x08085239
+ 8080e38:	0808522f 	.word	0x0808522f
  8080e3c:	20000408 	.word	0x20000408
- 8080e40:	08085244 	.word	0x08085244
+ 8080e40:	0808523a 	.word	0x0808523a
  8080e44:	200005e1 	.word	0x200005e1
- 8080e48:	0808524c 	.word	0x0808524c
+ 8080e48:	08085242 	.word	0x08085242
  8080e4c:	2000059a 	.word	0x2000059a
- 8080e50:	08085257 	.word	0x08085257
+ 8080e50:	0808524d 	.word	0x0808524d
  8080e54:	200004f4 	.word	0x200004f4
- 8080e58:	08085264 	.word	0x08085264
+ 8080e58:	0808525a 	.word	0x0808525a
  8080e5c:	200005d0 	.word	0x200005d0
- 8080e60:	08085270 	.word	0x08085270
+ 8080e60:	08085266 	.word	0x08085266
  8080e64:	200005ac 	.word	0x200005ac
- 8080e68:	08085279 	.word	0x08085279
+ 8080e68:	0808526f 	.word	0x0808526f
  8080e6c:	200005f3 	.word	0x200005f3
- 8080e70:	08085286 	.word	0x08085286
+ 8080e70:	0808527c 	.word	0x0808527c
  8080e74:	2000059c 	.word	0x2000059c
- 8080e78:	0808528f 	.word	0x0808528f
+ 8080e78:	08085285 	.word	0x08085285
  8080e7c:	080800c1 	.word	0x080800c1
- 8080e80:	0808529d 	.word	0x0808529d
+ 8080e80:	08085293 	.word	0x08085293
  8080e84:	08080b05 	.word	0x08080b05
- 8080e88:	080852a9 	.word	0x080852a9
+ 8080e88:	0808529f 	.word	0x0808529f
  8080e8c:	080808f9 	.word	0x080808f9
- 8080e90:	080852b6 	.word	0x080852b6
+ 8080e90:	080852ac 	.word	0x080852ac
  8080e94:	080809ad 	.word	0x080809ad
- 8080e98:	080852c1 	.word	0x080852c1
+ 8080e98:	080852b7 	.word	0x080852b7
  8080e9c:	08080a59 	.word	0x08080a59
- 8080ea0:	080852ce 	.word	0x080852ce
+ 8080ea0:	080852c4 	.word	0x080852c4
  8080ea4:	200005f1 	.word	0x200005f1
  8080ea8:	2000059b 	.word	0x2000059b
  8080eac:	200005e0 	.word	0x200005e0
@@ -2565,7 +2565,7 @@ void setup()                                                      // Note: Disco
  8080eb8:	20000504 	.word	0x20000504
  8080ebc:	080800b5 	.word	0x080800b5
  8080ec0:	2000050c 	.word	0x2000050c
- 8080ec4:	080852da 	.word	0x080852da
+ 8080ec4:	080852d0 	.word	0x080852d0
  8080ec8:	20000534 	.word	0x20000534
 
 08080ecc <_GLOBAL__sub_I_sht1x>:
@@ -4876,7 +4876,7 @@ public:
  8081a66:	4620      	mov	r0, r4
  8081a68:	b009      	add	sp, #36	; 0x24
  8081a6a:	bdf0      	pop	{r4, r5, r6, r7, pc}
- 8081a6c:	08085354 	.word	0x08085354
+ 8081a6c:	08085348 	.word	0x08085348
 
 08081a70 <_GLOBAL__sub_I__ZN5spark13CellularClass4RSSIEv>:
         return (band_get.ok = true);
@@ -4936,7 +4936,7 @@ public:
  8081aa2:	bd38      	pop	{r3, r4, r5, pc}
  8081aa4:	20000638 	.word	0x20000638
  8081aa8:	20000604 	.word	0x20000604
- 8081aac:	08085320 	.word	0x08085320
+ 8081aac:	08085314 	.word	0x08085314
 
 08081ab0 <_ZN14CellularSignalD1Ev>:
     CellularSignal(const cellular_signal_t& sig);
@@ -6304,7 +6304,7 @@ inline particle::Error::~Error() {
  8081f68:	4630      	mov	r0, r6
  8081f6a:	b00b      	add	sp, #44	; 0x2c
  8081f6c:	e8bd 8ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
- 8081f70:	08085388 	.word	0x08085388
+ 8081f70:	0808537c 	.word	0x0808537c
  8081f74:	080820e1 	.word	0x080820e1
 
 08081f78 <_ZNSt14_Function_base13_Base_managerISt5_BindIFSt8functionIFvRKN8particle5ErrorEEES4_EEE10_M_managerERSt9_Any_dataRKSC_St18_Manager_operation>:
@@ -7254,7 +7254,7 @@ TwoWire::TwoWire(HAL_I2C_Interface i2c)
  80822aa:	4620      	mov	r0, r4
  80822ac:	bd10      	pop	{r4, pc}
  80822ae:	bf00      	nop
- 80822b0:	080853a4 	.word	0x080853a4
+ 80822b0:	08085398 	.word	0x08085398
 
 080822b4 <_ZN7TwoWire5beginEv>:
   HAL_I2C_Stretch_Clock(_i2c, stretch, NULL);
@@ -7604,7 +7604,7 @@ IPAddress::IPAddress()
 }
  80823c4:	4770      	bx	lr
  80823c6:	bf00      	nop
- 80823c8:	080853cc 	.word	0x080853cc
+ 80823c8:	080853c0 	.word	0x080853c0
 
 080823cc <_ZN9IPAddressC1ERK16_HAL_IPAddress_t>:
 
@@ -7618,7 +7618,7 @@ IPAddress::IPAddress(const HAL_IPAddress& address)
 }
  80823d4:	4770      	bx	lr
  80823d6:	bf00      	nop
- 80823d8:	080853cc 	.word	0x080853cc
+ 80823d8:	080853c0 	.word	0x080853c0
 
 080823dc <_ZN9IPAddressC1Em>:
 IPAddress::IPAddress(uint8_t first_octet, uint8_t second_octet, uint8_t third_octet, uint8_t fourth_octet)
@@ -7646,7 +7646,7 @@ IPAddress::IPAddress(uint32_t address)
     *this = address;
 }
  80823e2:	4770      	bx	lr
- 80823e4:	080853cc 	.word	0x080853cc
+ 80823e4:	080853c0 	.word	0x080853c0
 
 080823e8 <_ZN9IPAddress8set_ipv4Ehhhh>:
     return address.ipv4!=0;
@@ -7683,7 +7683,7 @@ IPAddress::IPAddress(uint8_t first_octet, uint8_t second_octet, uint8_t third_oc
 }
  8082410:	b003      	add	sp, #12
  8082412:	bd30      	pop	{r4, r5, pc}
- 8082414:	080853cc 	.word	0x080853cc
+ 8082414:	080853c0 	.word	0x080853c0
 
 08082418 <_GLOBAL__sub_I__ZN5spark3LogE>:
     // This handler doesn't support direct logging
@@ -7696,7 +7696,7 @@ inline spark::Logger::Logger(const char *name) :
  808241a:	4b02      	ldr	r3, [pc, #8]	; (8082424 <_GLOBAL__sub_I__ZN5spark3LogE+0xc>)
  808241c:	601a      	str	r2, [r3, #0]
  808241e:	4770      	bx	lr
- 8082420:	0808548d 	.word	0x0808548d
+ 8082420:	08085481 	.word	0x08085481
  8082424:	20000660 	.word	0x20000660
 
 08082428 <_ZN5spark12NetworkClass7connectEj>:
@@ -7868,7 +7868,7 @@ IPAddress NetworkClass::resolve(const char* name) {
  80824e4:	605a      	str	r2, [r3, #4]
  80824e6:	4770      	bx	lr
  80824e8:	20000664 	.word	0x20000664
- 80824ec:	080854c0 	.word	0x080854c0
+ 80824ec:	080854b4 	.word	0x080854b4
 
 080824f0 <_ZN4PMIC5beginEv>:
  * Description    : Initializes the I2C for the PMIC module
@@ -9300,7 +9300,7 @@ SPIClass::SPIClass(HAL_SPI_Interface spi)
  80829c2:	4620      	mov	r0, r4
  80829c4:	bd70      	pop	{r4, r5, r6, pc}
  80829c6:	bf00      	nop
- 80829c8:	080854f4 	.word	0x080854f4
+ 80829c8:	080854e8 	.word	0x080854e8
 
 080829cc <_ZN8SPIClass9isEnabledEv>:
   //To Do
@@ -10353,7 +10353,7 @@ USARTSerial::USARTSerial(HAL_USART_Serial serial, Ring_Buffer *rx_buffer, Ring_B
  8082d7a:	4620      	mov	r0, r4
  8082d7c:	bd10      	pop	{r4, pc}
  8082d7e:	bf00      	nop
- 8082d80:	0808552c 	.word	0x0808552c
+ 8082d80:	08085520 	.word	0x08085520
 
 08082d84 <_ZN11USARTSerial9isEnabledEv>:
 USARTSerial::operator bool() {
@@ -10553,7 +10553,7 @@ USBSerial::USBSerial(HAL_USB_USART_Serial serial, const HAL_USB_USART_Config& co
 }
  8082e4c:	4620      	mov	r0, r4
  8082e4e:	bd10      	pop	{r4, pc}
- 8082e50:	0808555c 	.word	0x0808555c
+ 8082e50:	08085550 	.word	0x08085550
 
 08082e54 <_Z19acquireSerialBufferv>:
 
@@ -10878,7 +10878,7 @@ void system_initialize_user_backup_ram()
  8082fdc:	f001 bb22 	b.w	8084624 <memcpy>
  8082fe0:	40024000 	.word	0x40024000
  8082fe4:	40024004 	.word	0x40024004
- 8082fe8:	08085820 	.word	0x08085820
+ 8082fe8:	08085810 	.word	0x08085810
 
 08082fec <_Z27ctrl_request_custom_handlerP12ctrl_request>:
 bool __backup_ram_was_valid() { return false; }
@@ -13067,9 +13067,9 @@ SPIClass SPI2(HAL_SPI_INTERFACE3);
  80843fe:	4620      	mov	r0, r4
  8084400:	b006      	add	sp, #24
  8084402:	bd10      	pop	{r4, pc}
- 8084404:	08085599 	.word	0x08085599
- 8084408:	08085584 	.word	0x08085584
- 808440c:	080855bd 	.word	0x080855bd
+ 8084404:	0808558d 	.word	0x0808558d
+ 8084408:	08085578 	.word	0x08085578
+ 808440c:	080855b1 	.word	0x080855b1
 
 08084410 <atoi>:
  8084410:	220a      	movs	r2, #10
@@ -13298,7 +13298,7 @@ SPIClass SPI2(HAL_SPI_INTERFACE3);
  8084614:	4620      	mov	r0, r4
  8084616:	e8bd 81f0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, pc}
  808461a:	bf00      	nop
- 808461c:	08085740 	.word	0x08085740
+ 808461c:	08085734 	.word	0x08085734
  8084620:	20000c4c 	.word	0x20000c4c
 
 08084624 <memcpy>:
@@ -13798,7 +13798,7 @@ SPIClass SPI2(HAL_SPI_INTERFACE3);
  8084ac8:	2000      	movs	r0, #0
  8084aca:	b003      	add	sp, #12
  8084acc:	e8bd 8ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
- 8084ad0:	08085740 	.word	0x08085740
+ 8084ad0:	08085734 	.word	0x08085734
  8084ad4:	00015180 	.word	0x00015180
 
 08084ad8 <__tz_lock>:
@@ -14091,17 +14091,17 @@ SPIClass SPI2(HAL_SPI_INTERFACE3);
  8084db0:	b00d      	add	sp, #52	; 0x34
  8084db2:	e8bd 8ff0 	ldmia.w	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, pc}
  8084db6:	bf00      	nop
- 8084db8:	080857a0 	.word	0x080857a0
+ 8084db8:	08085794 	.word	0x08085794
  8084dbc:	20000c48 	.word	0x20000c48
  8084dc0:	20000c50 	.word	0x20000c50
- 8084dc4:	080857a3 	.word	0x080857a3
+ 8084dc4:	08085797 	.word	0x08085797
  8084dc8:	20000c4c 	.word	0x20000c4c
  8084dcc:	200004a4 	.word	0x200004a4
  8084dd0:	20000c3b 	.word	0x20000c3b
- 8084dd4:	080857a7 	.word	0x080857a7
- 8084dd8:	080857ca 	.word	0x080857ca
- 8084ddc:	080857b6 	.word	0x080857b6
- 8084de0:	080857c9 	.word	0x080857c9
+ 8084dd4:	0808579b 	.word	0x0808579b
+ 8084dd8:	080857be 	.word	0x080857be
+ 8084ddc:	080857aa 	.word	0x080857aa
+ 8084de0:	080857bd 	.word	0x080857bd
  8084de4:	20000c30 	.word	0x20000c30
 
 08084de8 <_findenv_r>:
@@ -14287,174 +14287,173 @@ SPIClass SPI2(HAL_SPI_INTERFACE3);
  808503c:	4e55 313d 0d36 000a 227b 6554 706d 7265     UN=16...{"Temper
  808504c:	7461 7275 2265 253a 2e34 6631 202c 4822     ature":%4.1f, "H
  808505c:	6d75 6469 7469 2279 253a 2e34 6631 202c     umidity":%4.1f, 
- 808506c:	7322 696f 436c 6e6f 7564 7463 7669 7469     "soilConductivit
- 808507c:	2279 253a 2e34 6631 202c 7322 696f 546c     y":%4.1f, "soilT
- 808508c:	6d65 4970 436e 3a22 3425 312e 2c66 2220     empInC":%4.1f, "
- 808509c:	6f73 6c69 6f56 756c 656d 7274 6369 6157     soilVolumetricWa
- 80850ac:	6574 2272 253a 2e34 6631 202c 4222 7461     ter":%4.1f, "Bat
- 80850bc:	6574 7972 3a22 6925 202c 5222 7365 7465     tery":%i, "Reset
- 80850cc:	2273 253a 2c69 2220 6c41 7265 7374 3a22     s":%i, "Alerts":
- 80850dc:	6925 007d 6543 6c6c 6c75 7261 535f 696f     %i}.Cellular_Soi
- 80850ec:	5f6c 6f48 6b6f 4500 7272 726f 7420 6b61     l_Hook.Error tak
- 80850fc:	6e69 2067 654d 7361 7275 6d65 6e65 7374     ing Measurements
- 808510c:	5300 6174 6574 4700 696f 676e 7420 206f     .State.Going to 
- 808511c:	6c53 6565 0070 6f4c 2077 6142 7474 7265     Sleep.Low Batter
- 808512c:	2079 202d 6c53 6565 6970 676e 5200 7065     y - Sleeping.Rep
- 808513c:	726f 6974 676e 4900 6c64 0065 7245 6f72     orting.Idle.Erro
- 808514c:	2072 202d 6552 6f70 7472 6e69 2067 6954     r - Reporting Ti
- 808515c:	656d 2064 754f 0074 5245 4f52 5f52 5453     med Out.ERROR_ST
- 808516c:	5441 2045 202d 6552 6573 7474 6e69 0067     ATE - Resetting.
- 808517c:	6f4e 4420 7461 0061 6255 6469 746f 2073     No Data.Ubidots 
- 808518c:	6f48 6b6f 5200 7365 6f70 736e 2065 6552     Hook.Response Re
- 808519c:	6563 7669 6465 5300 7465 5320 6c6f 7261     ceived.Set Solar
- 80851ac:	5020 776f 7265 6465 4d20 646f 0065 0030      Powered Mode.0.
- 80851bc:	6c43 6165 6572 2064 6f53 616c 2072 6f50     Cleared Solar Po
- 80851cc:	6577 6572 2064 6f4d 6564 5300 7465 5620     wered Mode.Set V
- 80851dc:	7265 6f62 6573 4d20 646f 0065 6c43 6165     erbose Mode.Clea
- 80851ec:	6572 2064 6556 6272 736f 2065 6f4d 6564     red Verbose Mode
- 80851fc:	5400 6d69 2065 6f7a 656e 6f20 6666 6573     .Time zone offse
- 808520c:	2074 6925 5400 6d69 0065 6f4c 2077 6f50     t %i.Time.Low Po
- 808521c:	6577 0072 6f4e 6d72 6c61 4f20 6570 6172     wer.Normal Opera
- 808522c:	6974 6e6f 0073 6953 6e67 6c61 5200 7365     tions.Signal.Res
- 808523c:	7465 6f43 6e75 0074 6552 656c 7361 0065     etCount.Release.
- 808524c:	7473 7461 4f65 4366 6768 6c00 776f 6f50     stateOfChg.lowPo
- 808525c:	6577 4d72 646f 0065 6574 706d 7265 7461     werMode.temperat
- 808526c:	7275 0065 7568 696d 6964 7974 4300 6e6f     ure.humidity.Con
- 808527c:	7564 7463 7669 7469 0079 6f53 6c69 6554     ductivity.SoilTe
- 808528c:	706d 5600 6c6f 6d75 7465 6972 4863 4f32     mp.VolumetricH2O
- 808529c:	4d00 6165 7573 6572 4e2d 776f 4c00 776f     .Measure-Now.Low
- 80852ac:	6f50 6577 4d72 646f 0065 6f53 616c 2d72     PowerMode.Solar-
- 80852bc:	6f4d 6564 5600 7265 6f62 6573 4d2d 646f     Mode.Verbose-Mod
- 80852cc:	0065 6553 5474 6d69 5a65 6e6f 0065 7453     e.SetTimeZone.St
- 80852dc:	7261 7574 0070 6e55 6e6b 776f 006e 6f4e     artup.Unknown.No
- 80852ec:	656e 5700 4669 0069 5347 004d 4d55 5354     ne.WiFi.GSM.UMTS
- 80852fc:	4300 4d44 0041 544c 0045 4549 4545 3038     .CDMA.LTE.IEEE80
- 808530c:	3132 3435 3100 302e 0031 0000               2154.1.01...
+ 808506c:	5322 696f 636c 6e6f 7564 7463 7669 7469     "Soilconductivit
+ 808507c:	2279 253a 2e34 6631 202c 5322 696f 746c     y":%4.1f, "Soilt
+ 808508c:	6d65 2270 253a 2e34 6631 202c 5322 696f     emp":%4.1f, "Soi
+ 808509c:	6d6c 696f 7473 7275 2265 253a 2e34 6631     lmoisture":%4.1f
+ 80850ac:	202c 4222 7461 6574 7972 3a22 6925 202c     , "Battery":%i, 
+ 80850bc:	5222 7365 7465 2273 253a 2c69 2220 6c41     "Resets":%i, "Al
+ 80850cc:	7265 7374 3a22 6925 007d 6543 6c6c 6c75     erts":%i}.Cellul
+ 80850dc:	7261 535f 696f 5f6c 6f48 6b6f 4500 7272     ar_Soil_Hook.Err
+ 80850ec:	726f 7420 6b61 6e69 2067 654d 7361 7275     or taking Measur
+ 80850fc:	6d65 6e65 7374 5300 6174 6574 4700 696f     ements.State.Goi
+ 808510c:	676e 7420 206f 6c53 6565 0070 6f4c 2077     ng to Sleep.Low 
+ 808511c:	6142 7474 7265 2079 202d 6c53 6565 6970     Battery - Sleepi
+ 808512c:	676e 5200 7065 726f 6974 676e 4900 6c64     ng.Reporting.Idl
+ 808513c:	0065 7245 6f72 2072 202d 6552 6f70 7472     e.Error - Report
+ 808514c:	6e69 2067 6954 656d 2064 754f 0074 5245     ing Timed Out.ER
+ 808515c:	4f52 5f52 5453 5441 2045 202d 6552 6573     ROR_STATE - Rese
+ 808516c:	7474 6e69 0067 6f4e 4420 7461 0061 6255     tting.No Data.Ub
+ 808517c:	6469 746f 2073 6f48 6b6f 5200 7365 6f70     idots Hook.Respo
+ 808518c:	736e 2065 6552 6563 7669 6465 5300 7465     nse Received.Set
+ 808519c:	5320 6c6f 7261 5020 776f 7265 6465 4d20      Solar Powered M
+ 80851ac:	646f 0065 0030 6c43 6165 6572 2064 6f53     ode.0.Cleared So
+ 80851bc:	616c 2072 6f50 6577 6572 2064 6f4d 6564     lar Powered Mode
+ 80851cc:	5300 7465 5620 7265 6f62 6573 4d20 646f     .Set Verbose Mod
+ 80851dc:	0065 6c43 6165 6572 2064 6556 6272 736f     e.Cleared Verbos
+ 80851ec:	2065 6f4d 6564 5400 6d69 2065 6f7a 656e     e Mode.Time zone
+ 80851fc:	6f20 6666 6573 2074 6925 5400 6d69 0065      offset %i.Time.
+ 808520c:	6f4c 2077 6f50 6577 0072 6f4e 6d72 6c61     Low Power.Normal
+ 808521c:	4f20 6570 6172 6974 6e6f 0073 6953 6e67      Operations.Sign
+ 808522c:	6c61 5200 7365 7465 6f43 6e75 0074 6552     al.ResetCount.Re
+ 808523c:	656c 7361 0065 7473 7461 4f65 4366 6768     lease.stateOfChg
+ 808524c:	6c00 776f 6f50 6577 4d72 646f 0065 6574     .lowPowerMode.te
+ 808525c:	706d 7265 7461 7275 0065 7568 696d 6964     mperature.humidi
+ 808526c:	7974 4300 6e6f 7564 7463 7669 7469 0079     ty.Conductivity.
+ 808527c:	6f53 6c69 6554 706d 5600 6c6f 6d75 7465     SoilTemp.Volumet
+ 808528c:	6972 4863 4f32 4d00 6165 7573 6572 4e2d     ricH2O.Measure-N
+ 808529c:	776f 4c00 776f 6f50 6577 4d72 646f 0065     ow.LowPowerMode.
+ 80852ac:	6f53 616c 2d72 6f4d 6564 5600 7265 6f62     Solar-Mode.Verbo
+ 80852bc:	6573 4d2d 646f 0065 6553 5474 6d69 5a65     se-Mode.SetTimeZ
+ 80852cc:	6e6f 0065 7453 7261 7574 0070 6e55 6e6b     one.Startup.Unkn
+ 80852dc:	776f 006e 6f4e 656e 5700 4669 0069 5347     own.None.WiFi.GS
+ 80852ec:	004d 4d55 5354 4300 4d44 0041 544c 0045     M.UMTS.CDMA.LTE.
+ 80852fc:	4549 4545 3038 3132 3435 3100 302e 0031     IEEE802154.1.01.
 
-08085318 <_ZTVN5spark13CellularClassE>:
+0808530c <_ZTVN5spark13CellularClassE>:
 	...
- 8085320:	19f3 0808 19e9 0808 19df 0808 1951 0808     ............Q...
- 8085330:	19d3 0808 19c7 0808 19bb 0808 19b3 0808     ................
- 8085340:	19a9 0808 199f 0808 195b 0808               ........[...
+ 8085314:	19f3 0808 19e9 0808 19df 0808 1951 0808     ............Q...
+ 8085324:	19d3 0808 19c7 0808 19bb 0808 19b3 0808     ................
+ 8085334:	19a9 0808 199f 0808 195b 0808               ........[...
 
-0808534c <_ZTV14CellularSignal>:
+08085340 <_ZTV14CellularSignal>:
 	...
- 8085354:	1ab1 0808 1b33 0808 1ab3 0808 1b71 0808     ....3.......q...
- 8085364:	1ab9 0808 1b41 0808 1add 0808 1b01 0808     ....A...........
- 8085374:	fffc ffff 0000 0000 1b2b 0808               ........+...
+ 8085348:	1ab1 0808 1b33 0808 1ab3 0808 1b71 0808     ....3.......q...
+ 8085358:	1ab9 0808 1b41 0808 1add 0808 1b01 0808     ....A...........
+ 8085368:	fffc ffff 0000 0000 1b2b 0808               ........+...
 
-08085380 <_ZTVSt15_Sp_counted_ptrIPN8particle6detail10FutureImplIbNS1_13FutureContextEEELN9__gnu_cxx12_Lock_policyE0EE>:
+08085374 <_ZTVSt15_Sp_counted_ptrIPN8particle6detail10FutureImplIbNS1_13FutureContextEEELN9__gnu_cxx12_Lock_policyE0EE>:
 	...
- 8085388:	1bb9 0808 1bbf 0808 1be7 0808 1bcb 0808     ................
- 8085398:	1bbb 0808                                   ....
+ 808537c:	1bb9 0808 1bbf 0808 1be7 0808 1bcb 0808     ................
+ 808538c:	1bbb 0808                                   ....
 
-0808539c <_ZTV7TwoWire>:
+08085390 <_ZTV7TwoWire>:
 	...
- 80853a4:	2239 0808 2283 0808 225b 0808 223b 0808     9"..."..["..;"..
- 80853b4:	2263 0808 226b 0808 2273 0808 227b 0808     c"..k"..s"..{"..
+ 8085398:	2239 0808 2283 0808 225b 0808 223b 0808     9"..."..["..;"..
+ 80853a8:	2263 0808 226b 0808 2273 0808 227b 0808     c"..k"..s"..{"..
 
-080853c4 <_ZTV9IPAddress>:
+080853b8 <_ZTV9IPAddress>:
 	...
- 80853cc:	238b 0808 237d 0808 237f 0808 0066 6e6c     .#..}#...#..f.ln
- 80853dc:	6600 006e 6f63 6564 6400 7465 6961 006c     .fn.code.detail.
- 80853ec:	3025 3031 2075 5d00 0020 6425 2c00 0020     %010u .] .%d., .
- 80853fc:	2928 203a 2000 005b 6f63 6564 3d20 0020     (): . [.code = .
- 808540c:	6564 6174 6c69 2073 203d 6200 7561 0064     details = .baud.
- 808541c:	6553 6972 6c61 5500 4253 6553 6972 6c61     Serial.USBSerial
- 808542c:	0031 7974 6570 7000 7261 6d61 6300 646d     1.type.param.cmd
- 808543c:	6900 0064 6e68 0064 7473 6d72 6600 6c69     .id.hnd.strm.fil
- 808544c:	0074 766c 006c 6461 4864 6e61 6c64 7265     t.lvl.addHandler
- 808545c:	7200 6d65 766f 4865 6e61 6c64 7265 6500     .removeHandler.e
- 808546c:	756e 486d 6e61 6c64 7265 0073 534a 4e4f     numHandlers.JSON
- 808547c:	7453 6572 6d61 6f4c 4867 6e61 6c64 7265     StreamLogHandler
- 808548c:	6100 7070 6e00 6e6f 0065 7274 6361 0065     .app.none.trace.
- 808549c:	6e69 6f66 7700 7261 006e 7265 6f72 0072     info.warn.error.
- 80854ac:	6170 696e 0063 6c61 006c 0000               panic.all...
+ 80853c0:	238b 0808 237d 0808 237f 0808 0066 6e6c     .#..}#...#..f.ln
+ 80853d0:	6600 006e 6f63 6564 6400 7465 6961 006c     .fn.code.detail.
+ 80853e0:	3025 3031 2075 5d00 0020 6425 2c00 0020     %010u .] .%d., .
+ 80853f0:	2928 203a 2000 005b 6f63 6564 3d20 0020     (): . [.code = .
+ 8085400:	6564 6174 6c69 2073 203d 6200 7561 0064     details = .baud.
+ 8085410:	6553 6972 6c61 5500 4253 6553 6972 6c61     Serial.USBSerial
+ 8085420:	0031 7974 6570 7000 7261 6d61 6300 646d     1.type.param.cmd
+ 8085430:	6900 0064 6e68 0064 7473 6d72 6600 6c69     .id.hnd.strm.fil
+ 8085440:	0074 766c 006c 6461 4864 6e61 6c64 7265     t.lvl.addHandler
+ 8085450:	7200 6d65 766f 4865 6e61 6c64 7265 6500     .removeHandler.e
+ 8085460:	756e 486d 6e61 6c64 7265 0073 534a 4e4f     numHandlers.JSON
+ 8085470:	7453 6572 6d61 6f4c 4867 6e61 6c64 7265     StreamLogHandler
+ 8085480:	6100 7070 6e00 6e6f 0065 7274 6361 0065     .app.none.trace.
+ 8085490:	6e69 6f66 7700 7261 006e 7265 6f72 0072     info.warn.error.
+ 80854a0:	6170 696e 0063 6c61 006c 0000               panic.all...
 
-080854b8 <_ZTVN5spark12NetworkClassE>:
+080854ac <_ZTVN5spark12NetworkClassE>:
 	...
- 80854c0:	2429 0808 2433 0808 243d 0808 2447 0808     )$..3$..=$..G$..
- 80854d0:	2451 0808 245d 0808 2469 0808 2475 0808     Q$..]$..i$..u$..
- 80854e0:	247d 0808 2487 0808 2491 0808               }$...$...$..
+ 80854b4:	2429 0808 2433 0808 243d 0808 2447 0808     )$..3$..=$..G$..
+ 80854c4:	2451 0808 245d 0808 2469 0808 2475 0808     Q$..]$..i$..u$..
+ 80854d4:	247d 0808 2487 0808 2491 0808               }$...$...$..
 
-080854ec <_ZTV8SPIClass>:
+080854e0 <_ZTV8SPIClass>:
 	...
- 80854f4:	2995 0808 2997 0808 2b25 3330 3a64 3025     .)...)..%+03d:%0
- 8085504:	7532 2500 2d59 6d25 252d 5464 4825 253a     2u.%Y-%m-%dT%H:%
- 8085514:	3a4d 5325 7a25 6100 6373 6974 656d 0000     M:%S%z.asctime..
+ 80854e8:	2995 0808 2997 0808 2b25 3330 3a64 3025     .)...)..%+03d:%0
+ 80854f8:	7532 2500 2d59 6d25 252d 5464 4825 253a     2u.%Y-%m-%dT%H:%
+ 8085508:	3a4d 5325 7a25 6100 6373 6974 656d 0000     M:%S%z.asctime..
 
-08085524 <_ZTV11USARTSerial>:
+08085518 <_ZTV11USARTSerial>:
 	...
- 808552c:	2d05 0808 2d29 0808 2d35 0808 2879 0808     .-..)-..5-..y(..
- 808553c:	2d11 0808 2d1d 0808 2d17 0808 2d23 0808     .-...-...-..#-..
- 808554c:	2d07 0808 2d0b 0808                         .-...-..
+ 8085520:	2d05 0808 2d29 0808 2d35 0808 2879 0808     .-..)-..5-..y(..
+ 8085530:	2d11 0808 2d1d 0808 2d17 0808 2d23 0808     .-...-...-..#-..
+ 8085540:	2d07 0808 2d0b 0808                         .-...-..
 
-08085554 <_ZTV9USBSerial>:
+08085548 <_ZTV9USBSerial>:
 	...
- 808555c:	2ddd 0808 2e21 0808 2dfb 0808 2879 0808     .-..!....-..y(..
- 808556c:	2df5 0808 2ddf 0808 2de7 0808 2e1b 0808     .-...-...-......
- 808557c:	2def 0808 2dd9 0808                         .-...-..
+ 8085550:	2ddd 0808 2e21 0808 2dfb 0808 2879 0808     .-..!....-..y(..
+ 8085560:	2df5 0808 2ddf 0808 2de7 0808 2e1b 0808     .-...-...-......
+ 8085570:	2def 0808 2dd9 0808                         .-...-..
 
-08085584 <day_name.4723>:
- 8085584:	7553 4d6e 6e6f 7554 5765 6465 6854 4675     SunMonTueWedThuF
- 8085594:	6972 6153 4a74                                   riSat
+08085578 <day_name.4723>:
+ 8085578:	7553 4d6e 6e6f 7554 5765 6465 6854 4675     SunMonTueWedThuF
+ 8085588:	6972 6153 4a74                                   riSat
 
-08085599 <mon_name.4724>:
- 8085599:	614a 466e 6265 614d 4172 7270 614d 4a79     JanFebMarAprMayJ
- 80855a9:	6e75 754a 416c 6775 6553 4f70 7463 6f4e     unJulAugSepOctNo
- 80855b9:	4476 6365 2e25 7333 2520 332e 2573 6433     vDec%.3s %.3s%3d
- 80855c9:	2520 322e 3a64 2e25 6432 253a 322e 2064      %.2d:%.2d:%.2d 
- 80855d9:	6425 000a                                   %d..
+0808558d <mon_name.4724>:
+ 808558d:	614a 466e 6265 614d 4172 7270 614d 4a79     JanFebMarAprMayJ
+ 808559d:	6e75 754a 416c 6775 6553 4f70 7463 6f4e     unJulAugSepOctNo
+ 80855ad:	4476 6365 2e25 7333 2520 332e 2573 6433     vDec%.3s %.3s%3d
+ 80855bd:	2520 322e 3a64 2e25 6432 253a 322e 2064      %.2d:%.2d:%.2d 
+ 80855cd:	6425 000a                                   %d..
 
-080855dd <_ctype_>:
- 80855dd:	2000 2020 2020 2020 2020 2828 2828 2028     .         ((((( 
- 80855ed:	2020 2020 2020 2020 2020 2020 2020 2020                     
- 80855fd:	8820 1010 1010 1010 1010 1010 1010 1010      ...............
- 808560d:	0410 0404 0404 0404 0404 1004 1010 1010     ................
- 808561d:	1010 4141 4141 4141 0101 0101 0101 0101     ..AAAAAA........
- 808562d:	0101 0101 0101 0101 0101 0101 1010 1010     ................
- 808563d:	1010 4242 4242 4242 0202 0202 0202 0202     ..BBBBBB........
- 808564d:	0202 0202 0202 0202 0202 0202 1010 1010     ................
- 808565d:	0020 0000 0000 0000 0000 0000 0000 0000      ...............
-	...
-
-080856e0 <__sf_fake_stdin>:
+080855d1 <_ctype_>:
+ 80855d1:	2000 2020 2020 2020 2020 2828 2828 2028     .         ((((( 
+ 80855e1:	2020 2020 2020 2020 2020 2020 2020 2020                     
+ 80855f1:	8820 1010 1010 1010 1010 1010 1010 1010      ...............
+ 8085601:	0410 0404 0404 0404 0404 1004 1010 1010     ................
+ 8085611:	1010 4141 4141 4141 0101 0101 0101 0101     ..AAAAAA........
+ 8085621:	0101 0101 0101 0101 0101 0101 1010 1010     ................
+ 8085631:	1010 4242 4242 4242 0202 0202 0202 0202     ..BBBBBB........
+ 8085641:	0202 0202 0202 0202 0202 0202 1010 1010     ................
+ 8085651:	0020 0000 0000 0000 0000 0000 0000 0000      ...............
 	...
 
-08085700 <__sf_fake_stdout>:
+080856d4 <__sf_fake_stdin>:
 	...
 
-08085720 <__sf_fake_stderr>:
+080856f4 <__sf_fake_stdout>:
 	...
 
-08085740 <__month_lengths>:
- 8085740:	001f 0000 001c 0000 001f 0000 001e 0000     ................
- 8085750:	001f 0000 001e 0000 001f 0000 001f 0000     ................
- 8085760:	001e 0000 001f 0000 001e 0000 001f 0000     ................
- 8085770:	001f 0000 001d 0000 001f 0000 001e 0000     ................
- 8085780:	001f 0000 001e 0000 001f 0000 001f 0000     ................
- 8085790:	001e 0000 001f 0000 001e 0000 001f 0000     ................
- 80857a0:	5a54 4700 544d 2500 3031 5e5b 2d30 2c39     TZ.GMT.%10[^0-9,
- 80857b0:	2d2b 255d 006e 254d 7568 6e25 252e 7568     +-]%n.M%hu%n.%hu
- 80857c0:	6e25 252e 7568 6e25 2f00 6825 2575 3a6e     %n.%hu%n./%hu%n:
- 80857d0:	6825 2575 3a6e 6825 2575 006e               %hu%n:%hu%n.
-
-080857dc <link_const_variable_data_end>:
- 80857dc:	08080ecd 	.word	0x08080ecd
- 80857e0:	0808121d 	.word	0x0808121d
- 80857e4:	08081369 	.word	0x08081369
- 80857e8:	08081a71 	.word	0x08081a71
- 80857ec:	08082419 	.word	0x08082419
- 80857f0:	080824dd 	.word	0x080824dd
- 80857f4:	08082979 	.word	0x08082979
- 80857f8:	08082b51 	.word	0x08082b51
- 80857fc:	08082cf1 	.word	0x08082cf1
- 8085800:	08083245 	.word	0x08083245
- 8085804:	08083275 	.word	0x08083275
- 8085808:	080832e1 	.word	0x080832e1
- 808580c:	080833a5 	.word	0x080833a5
- 8085810:	08083429 	.word	0x08083429
- 8085814:	080834ad 	.word	0x080834ad
-
-08085818 <link_constructors_end>:
+08085714 <__sf_fake_stderr>:
 	...
+
+08085734 <__month_lengths>:
+ 8085734:	001f 0000 001c 0000 001f 0000 001e 0000     ................
+ 8085744:	001f 0000 001e 0000 001f 0000 001f 0000     ................
+ 8085754:	001e 0000 001f 0000 001e 0000 001f 0000     ................
+ 8085764:	001f 0000 001d 0000 001f 0000 001e 0000     ................
+ 8085774:	001f 0000 001e 0000 001f 0000 001f 0000     ................
+ 8085784:	001e 0000 001f 0000 001e 0000 001f 0000     ................
+ 8085794:	5a54 4700 544d 2500 3031 5e5b 2d30 2c39     TZ.GMT.%10[^0-9,
+ 80857a4:	2d2b 255d 006e 254d 7568 6e25 252e 7568     +-]%n.M%hu%n.%hu
+ 80857b4:	6e25 252e 7568 6e25 2f00 6825 2575 3a6e     %n.%hu%n./%hu%n:
+ 80857c4:	6825 2575 3a6e 6825 2575 006e               %hu%n:%hu%n.
+
+080857d0 <link_const_variable_data_end>:
+ 80857d0:	08080ecd 	.word	0x08080ecd
+ 80857d4:	0808121d 	.word	0x0808121d
+ 80857d8:	08081369 	.word	0x08081369
+ 80857dc:	08081a71 	.word	0x08081a71
+ 80857e0:	08082419 	.word	0x08082419
+ 80857e4:	080824dd 	.word	0x080824dd
+ 80857e8:	08082979 	.word	0x08082979
+ 80857ec:	08082b51 	.word	0x08082b51
+ 80857f0:	08082cf1 	.word	0x08082cf1
+ 80857f4:	08083245 	.word	0x08083245
+ 80857f8:	08083275 	.word	0x08083275
+ 80857fc:	080832e1 	.word	0x080832e1
+ 8085800:	080833a5 	.word	0x080833a5
+ 8085804:	08083429 	.word	0x08083429
+ 8085808:	080834ad 	.word	0x080834ad
+
+0808580c <link_constructors_end>:
+ 808580c:	00000000 	.word	0x00000000

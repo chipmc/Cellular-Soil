@@ -9,9 +9,9 @@
   "json": {
     "Temperature": "{{Temperature}}",
     "Humidity": "{{Humidity}}",
-    "SoilConductivity": "{{SoilConductivity}}",
-    "SoilTemp": "{{SoilTemp}}",
-    "SoilMoisture": "{{SoilMoisture}}",
+    "Soilconductivity": "{{Soilconductivity}}",
+    "Soiltemp": "{{Soiltemp}}",
+    "Soilmoisture": "{{Soilmoisture}}",
     "Battery": "{{Battery}}",
     "Resets": "{{Resets}}",
     "Alerts": "{{Alerts}}"

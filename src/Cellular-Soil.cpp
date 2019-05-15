@@ -326,7 +326,7 @@ void loop()
 void sendEvent()
 {
   char data[256];                                                         // Store the date in this character array - not global
-  snprintf(data, sizeof(data), "{\"Temperature\":%4.1f, \"Humidity\":%4.1f, \"soilConductivity\":%4.1f, \"soilTempInC\":%4.1f, \"soilVolumetricWater\":%4.1f, \"Battery\":%i, \"Resets\":%i, \"Alerts\":%i}", temperatureInC, relativeHumidity, soilConductivity, soilTempInC, soilVolumetricWater, stateOfCharge,resetCount, alertCount);
+  snprintf(data, sizeof(data), "{\"Temperature\":%4.1f, \"Humidity\":%4.1f, \"Soilconductivity\":%4.1f, \"Soiltemp\":%4.1f, \"Soilmoisture\":%4.1f, \"Battery\":%i, \"Resets\":%i, \"Alerts\":%i}", temperatureInC, relativeHumidity, soilConductivity, soilTempInC, soilVolumetricWater, stateOfCharge,resetCount, alertCount);
   Particle.publish("Cellular_Soil_Hook", data, PRIVATE);
   currentHourlyPeriod = Time.hour();                                      // Change the time period
   currentDailyPeriod = Time.day();
