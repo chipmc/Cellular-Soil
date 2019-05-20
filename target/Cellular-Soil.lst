@@ -17,23 +17,23 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
   6 .module_info_crc 00000004  0808592c  0808592c  0003592c  2**0
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
-  7 .debug_info   000ba3d5  00000000  00000000  00035930  2**0
+  7 .debug_info   000ba3e3  00000000  00000000  00035930  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_abbrev 00011e51  00000000  00000000  000efd05  2**0
+  8 .debug_abbrev 00011e51  00000000  00000000  000efd13  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_loc    00016cf1  00000000  00000000  00101b56  2**0
+  9 .debug_loc    00016cf1  00000000  00000000  00101b64  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_aranges 000023c0  00000000  00000000  00118847  2**0
+ 10 .debug_aranges 000023c0  00000000  00000000  00118855  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_ranges 00003858  00000000  00000000  0011ac07  2**0
+ 11 .debug_ranges 00003858  00000000  00000000  0011ac15  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_macro  00029642  00000000  00000000  0011e45f  2**0
+ 12 .debug_macro  00029642  00000000  00000000  0011e46d  2**0
                   CONTENTS, READONLY, DEBUGGING
- 13 .debug_line   0002a3e1  00000000  00000000  00147aa1  2**0
+ 13 .debug_line   0002a3dd  00000000  00000000  00147aaf  2**0
                   CONTENTS, READONLY, DEBUGGING
- 14 .debug_str    000a9526  00000000  00000000  00171e82  2**0
+ 14 .debug_str    000a9526  00000000  00000000  00171e8c  2**0
                   CONTENTS, READONLY, DEBUGGING
- 15 .debug_frame  0000c900  00000000  00000000  0021b3a8  2**2
+ 15 .debug_frame  0000c900  00000000  00000000  0021b3b4  2**2
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -225,7 +225,7 @@ int measureNow(String command) // Function to force sending data in current hour
   else return 0;
 }
  80800d2:	bd08      	pop	{r3, pc}
- 80800d4:	0808530a 	.word	0x0808530a
+ 80800d4:	08085420 	.word	0x08085420
  80800d8:	20000531 	.word	0x20000531
 
 080800dc <_ZN11EEPROMClass4readEi.isra.15>:
@@ -1717,7 +1717,7 @@ int setSolarMode(String command) // Function to force sending data in current ho
 }
  8080988:	b005      	add	sp, #20
  808098a:	bd30      	pop	{r4, r5, pc}
- 808098c:	0808530a 	.word	0x0808530a
+ 808098c:	08085420 	.word	0x08085420
  8080990:	200005e0 	.word	0x200005e0
  8080994:	200005f1 	.word	0x200005f1
  8080998:	2000050c 	.word	0x2000050c
@@ -1812,7 +1812,7 @@ int setVerboseMode(String command) // Function to force sending data in current 
 }
  8080a34:	b005      	add	sp, #20
  8080a36:	bd30      	pop	{r4, r5, pc}
- 8080a38:	0808530a 	.word	0x0808530a
+ 8080a38:	08085420 	.word	0x08085420
  8080a3c:	2000059b 	.word	0x2000059b
  8080a40:	200005f1 	.word	0x200005f1
  8080a44:	2000050c 	.word	0x2000050c
@@ -2037,7 +2037,7 @@ int setLowPowerMode(String command)                                   // This is
 }
  8080b9c:	b004      	add	sp, #16
  8080b9e:	bd70      	pop	{r4, r5, r6, pc}
- 8080ba0:	0808530a 	.word	0x0808530a
+ 8080ba0:	08085420 	.word	0x08085420
  8080ba4:	080851b0 	.word	0x080851b0
  8080ba8:	200005f1 	.word	0x200005f1
  8080bac:	2000050c 	.word	0x2000050c
@@ -2473,7 +2473,7 @@ void setup()                                                      // Note: Disco
  8080dd6:	f7ff fa4f 	bl	8080278 <_Z17connectToParticlev>
   connectToParticle();  // For now, let's just connect
 
-  attachInterrupt(donePin,watchdogISR,RISING);
+  attachInterrupt(wakeUpPin,watchdogISR,RISING);                        // Interrupt from watchdog - need to pet when triggered
  8080dda:	2400      	movs	r4, #0
     controlRegister = (0b11111110 & controlRegister);                   // Turn off Low power mode
     EEPROM.write(controlRegister,MEM_MAP::controlRegisterAddr);         // Write to the EEMPROM
@@ -2483,12 +2483,12 @@ void setup()                                                      // Note: Disco
   connectToParticle();  // For now, let's just connect
  8080ddc:	f7ff fa4c 	bl	8080278 <_Z17connectToParticlev>
 
-  attachInterrupt(donePin,watchdogISR,RISING);
+  attachInterrupt(wakeUpPin,watchdogISR,RISING);                        // Interrupt from watchdog - need to pet when triggered
  8080de0:	f04f 33ff 	mov.w	r3, #4294967295	; 0xffffffff
  8080de4:	9400      	str	r4, [sp, #0]
  8080de6:	2201      	movs	r2, #1
  8080de8:	4934      	ldr	r1, [pc, #208]	; (8080ebc <setup+0x2e8>)
- 8080dea:	2006      	movs	r0, #6
+ 8080dea:	2011      	movs	r0, #17
  8080dec:	f001 fa9c 	bl	8082328 <_Z15attachInterrupttPFvvE13InterruptModeah>
 
   if(verboseMode) Particle.publish("Startup",StartupMessage,PRIVATE);           // Let Particle know how the startup process went
@@ -2516,7 +2516,7 @@ void setup()                                                      // Note: Disco
  8080e14:	a804      	add	r0, sp, #16
  8080e16:	f001 fddc 	bl	80829d2 <_ZN6StringD1Ev>
 
-  attachInterrupt(donePin,watchdogISR,RISING);
+  attachInterrupt(wakeUpPin,watchdogISR,RISING);                        // Interrupt from watchdog - need to pet when triggered
 
   if(verboseMode) Particle.publish("Startup",StartupMessage,PRIVATE);           // Let Particle know how the startup process went
   lastPublish = millis();
@@ -14328,7 +14328,7 @@ SPIClass SPI2(HAL_SPI_INTERFACE3);
  80852cc:	6e6f 0065 7453 7261 7574 0070 6e55 6e6b     one.Startup.Unkn
  80852dc:	776f 006e 6f4e 656e 5700 4669 0069 5347     own.None.WiFi.GS
  80852ec:	004d 4d55 5354 4300 4d44 0041 544c 0045     M.UMTS.CDMA.LTE.
- 80852fc:	4549 4545 3038 3132 3435 3100 302e 0031     IEEE802154.1.01.
+ 80852fc:	4549 4545 3038 3132 3435 3100 302e 0033     IEEE802154.1.03.
 
 0808530c <_ZTVN5spark13CellularClassE>:
 	...

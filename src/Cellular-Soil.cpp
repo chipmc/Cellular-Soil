@@ -10,6 +10,8 @@
 
 // v1.00 - Initial Release - SHT-10 functionality
 // v1.01 - Added Soil Sensor functionality
+// v1.02 - Fixed capitalization that was preventing Ubidots from seeing my data
+// v1.03 - Fixed watchdog interrupt bug
 
 
 
@@ -32,8 +34,8 @@ bool meterParticlePublish(void);
 void fullModemReset();
 void watchdogISR();
 void petWatchdog();
-#line 14 "/Users/chipmc/Documents/Maker/Particle/Projects/Cellular-Soil/src/Cellular-Soil.ino"
-#define SOFTWARERELEASENUMBER "1.01"               // Keep track of release numbers
+#line 16 "/Users/chipmc/Documents/Maker/Particle/Projects/Cellular-Soil/src/Cellular-Soil.ino"
+#define SOFTWARERELEASENUMBER "1.03"               // Keep track of release numbers
 
 // Included Libraries
 #include "math.h"
@@ -78,6 +80,7 @@ State state = INITIALIZATION_STATE;
 const int blueLED =       D7;                     // This LED is on the Electron itself
 const int userSwitch =    D5;                     // User switch with a pull-up resistor
 const int donePin =       D6;                     // This pin is used to let the watchdog timer know we are still alive
+const int wakeUpPin =     A7;                     // Pin the watchdog will ping us on
 
 volatile bool watchDogFlag = false;
 
@@ -205,7 +208,7 @@ void setup()                                                      // Note: Disco
   if (!lowPowerMode && (stateOfCharge >= lowBattLimit)) connectToParticle();  // If not lowpower or sleeping, we can connect
   connectToParticle();  // For now, let's just connect
 
-  attachInterrupt(donePin,watchdogISR,RISING);
+  attachInterrupt(wakeUpPin,watchdogISR,RISING);                        // Interrupt from watchdog - need to pet when triggered
 
   if(verboseMode) Particle.publish("Startup",StartupMessage,PRIVATE);           // Let Particle know how the startup process went
   lastPublish = millis();
