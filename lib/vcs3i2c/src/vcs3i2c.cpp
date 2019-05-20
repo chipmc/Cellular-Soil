@@ -9,9 +9,10 @@ SVCS3::SVCS3(){
   addr=0x63;
 }
 
-int SVCS3::init(int address){
+int SVCS3::init(int address) {
   addr = address;
   Wire.begin();
+  return 1;
 }
 
 

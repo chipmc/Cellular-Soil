@@ -12,8 +12,7 @@
 // v1.01 - Added Soil Sensor functionality
 // v1.02 - Fixed capitalization that was preventing Ubidots from seeing my data
 // v1.03 - Fixed watchdog interrupt bug
-
-
+// v1.04 - Still tracking down the watchdog interupt bug
 
 void setup();
 void loop();
@@ -34,8 +33,8 @@ bool meterParticlePublish(void);
 void fullModemReset();
 void watchdogISR();
 void petWatchdog();
-#line 16 "/Users/chipmc/Documents/Maker/Particle/Projects/Cellular-Soil/src/Cellular-Soil.ino"
-#define SOFTWARERELEASENUMBER "1.03"               // Keep track of release numbers
+#line 15 "/Users/chipmc/Documents/Maker/Particle/Projects/Cellular-Soil/src/Cellular-Soil.ino"
+#define SOFTWARERELEASENUMBER "1.04"               // Keep track of release numbers
 
 // Included Libraries
 #include "math.h"
@@ -82,7 +81,7 @@ const int userSwitch =    D5;                     // User switch with a pull-up 
 const int donePin =       D6;                     // This pin is used to let the watchdog timer know we are still alive
 const int wakeUpPin =     A7;                     // Pin the watchdog will ping us on
 
-volatile bool watchDogFlag = false;
+volatile bool watchDogFlag = false;               // Flag is raised in the watchdog ISR
 
 // Timing Variables
 unsigned long webhookWaitTime = 45000;            // How long will we wair for a WebHook response
@@ -142,6 +141,7 @@ void setup()                                                      // Note: Disco
   pinMode(blueLED, OUTPUT);                                       // declare the Blue LED Pin as an output
   pinMode(userSwitch,INPUT);                                      // Momentary contact button on board for direct user input
   pinMode(donePin,OUTPUT);                                        // To pet the watchdog
+  pinMode(wakeUpPin,INPUT);                                       // This pin is active HIGH
 
   char responseTopic[125];
   String deviceID = System.deviceID();                            // Multiple Electrons share the same hook - keeps things straight
