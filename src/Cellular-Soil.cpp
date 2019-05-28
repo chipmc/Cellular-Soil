@@ -3,7 +3,10 @@
 /*
 * Project Environmental Sensor - converged software for Low Power and Solar
 * Description: Cellular Connected Data Logger for Utility and Solar powered installations
-* Author: Chip McClelland chip@mcclellands.org
+* Uses two sensors - SHT-10 for Temp / Humidity and a Soil Sensor from Tinovi
+* Tindie storefront - https://www.tindie.com/products/tinovi/i2c-soil-moisture-temperature-sensor/
+* Adafruit for SHT-10 - https://www.adafruit.com/product/1298 
+* Author: Chip McClelland chip@seeinsights.com
 * Sponsor: Thom Harvey ID&D
 * Date: 1 March 2019
 */
@@ -33,7 +36,7 @@ bool meterParticlePublish(void);
 void fullModemReset();
 void watchdogISR();
 void petWatchdog();
-#line 15 "/Users/chipmc/Documents/Maker/Particle/Projects/Cellular-Soil/src/Cellular-Soil.ino"
+#line 18 "/Users/chipmc/Documents/Maker/Particle/Projects/Cellular-Soil/src/Cellular-Soil.ino"
 #define SOFTWARERELEASENUMBER "1.04"               // Keep track of release numbers
 
 // Included Libraries
@@ -168,27 +171,27 @@ void setup()                                                      // Note: Disco
   if (MEMORYMAPVERSION != EEPROM.read(MEM_MAP::versionAddr)) {          // Check to see if the memory map is the right version
     EEPROM.put(MEM_MAP::versionAddr,MEMORYMAPVERSION);
     for (int i=1; i < 10; i++) {
-      EEPROM.put(i,0);                                                 // Zero out the memory - new map or new device
+      EEPROM.put(i,0);                                                  // Zero out the memory - new map or new device
     }
   }
 
-  resetCount = EEPROM.read(MEM_MAP::resetCountAddr);                     // Retrive system recount data from FRAM
+  resetCount = EEPROM.read(MEM_MAP::resetCountAddr);                    // Retrive system recount data from FRAM
   if (System.resetReason() == RESET_REASON_PIN_RESET)                   // Check to see if we are starting from a pin reset
   {
     resetCount++;
-    EEPROM.write(MEM_MAP::resetCountAddr, resetCount);                    // If so, store incremented number - watchdog must have done This
+    EEPROM.write(MEM_MAP::resetCountAddr, resetCount);                  // If so, store incremented number - watchdog must have done This
   }
   if (resetCount >=6) {                                                 // If we get to resetCount 4, we are resetting without entering the main loop
-    EEPROM.write(MEM_MAP::resetCountAddr,4);                                           // The hope here is to get to the main loop and report a value of 4 which will indicate this issue is occuring
+    EEPROM.write(MEM_MAP::resetCountAddr,4);                            // The hope here is to get to the main loop and report a value of 4 which will indicate this issue is occuring
     fullModemReset();                                                   // This will reset the modem and the device will reboot
   }
 
-  int8_t tempTimeZoneOffset = EEPROM.read(MEM_MAP::timeZoneAddr);                      // Load Time zone data from FRAM
+  int8_t tempTimeZoneOffset = EEPROM.read(MEM_MAP::timeZoneAddr);       // Load Time zone data from FRAM
   if (tempTimeZoneOffset <= 12 && tempTimeZoneOffset >= -12)  Time.zone((float)tempTimeZoneOffset);  // Load Timezone from FRAM
-  else Time.zone(0);                                                   // Default is GMT in case proper value not in EEPROM
+  else Time.zone(0);                                                    // Default is GMT in case proper value not in EEPROM
 
   // And set the flags from the control register
-  controlRegister = EEPROM.read(MEM_MAP::controlRegisterAddr);            // Read the Control Register for system modes so they stick even after reset
+  controlRegister = EEPROM.read(MEM_MAP::controlRegisterAddr);          // Read the Control Register for system modes so they stick even after reset
   lowPowerMode    = (0b00000001 & controlRegister);                     // Set the lowPowerMode
   solarPowerMode  = (0b00000100 & controlRegister);                     // Set the solarPowerMode
   verboseMode     = (0b00001000 & controlRegister);                     // Set the verboseMode
@@ -208,6 +211,7 @@ void setup()                                                      // Note: Disco
   if (!lowPowerMode && (stateOfCharge >= lowBattLimit)) connectToParticle();  // If not lowpower or sleeping, we can connect
   connectToParticle();  // For now, let's just connect
 
+  petWatchdog();                                                        // Need to pet the watchdog as we are waking from sleep
   attachInterrupt(wakeUpPin,watchdogISR,RISING);                        // Interrupt from watchdog - need to pet when triggered
 
   if(verboseMode) Particle.publish("Startup",StartupMessage,PRIVATE);           // Let Particle know how the startup process went
@@ -282,7 +286,7 @@ void loop()
     {
       if (verboseMode) {
         waitUntil(meterParticlePublish);
-        Particle.publish("State","Reporting",PRIVATE,PRIVATE);
+        Particle.publish("State","Reporting",PRIVATE);
         lastPublish = millis();
       }
       webhookTimeStamp = millis();
@@ -302,6 +306,7 @@ void loop()
     }
     else if (waiting && millis() >= (webhookTimeStamp + webhookWaitTime))
     {
+      resetTimeStamp = millis();                            // Ensures we wait a respectable amount of time before resetting.
       state = ERROR_STATE;
       if (verboseMode) {
         waitUntil(meterParticlePublish);
