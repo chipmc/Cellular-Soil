@@ -16,6 +16,8 @@
 // v1.02 - Fixed capitalization that was preventing Ubidots from seeing my data
 // v1.03 - Fixed watchdog interrupt bug
 // v1.04 - Still tracking down the watchdog interupt bug
+// v1.05 - Minor updates and fixes
+// v1.06 - Changed the program flow as I was not getting reliable hourly Reporting
 
 void setup();
 void loop();
@@ -32,12 +34,13 @@ int setSolarMode(String command);
 int setVerboseMode(String command);
 int setTimeZone(String command);
 int setLowPowerMode(String command);
+void publishStateTransition(void);
 bool meterParticlePublish(void);
 void fullModemReset();
 void watchdogISR();
 void petWatchdog();
-#line 18 "/Users/chipmc/Documents/Maker/Particle/Projects/Cellular-Soil/src/Cellular-Soil.ino"
-#define SOFTWARERELEASENUMBER "1.04"               // Keep track of release numbers
+#line 20 "/Users/chipmc/Documents/Maker/Particle/Projects/Cellular-Soil/src/Cellular-Soil.ino"
+#define SOFTWARERELEASENUMBER "1.06"               // Keep track of release numbers
 
 // Included Libraries
 #include "math.h"
@@ -75,26 +78,33 @@ PMIC power;                           // Initalize the PMIC class so you can cal
 
 
 // State Machine Variables
-enum State { INITIALIZATION_STATE, ERROR_STATE, IDLE_STATE, MEASURING_STATE, SLEEPING_STATE, LOW_BATTERY_STATE, REPORTING_STATE};
+enum State { INITIALIZATION_STATE, ERROR_STATE, IDLE_STATE, MEASURING_STATE, REPORTING_STATE, RESP_WAIT_STATE, SLEEPING_STATE, LOW_BATTERY_STATE};
+char stateNames[8][14] = {"Initialize", "Error", "Idle", "Measuring", "Reporting", "Response Wait", "Sleeping", "Low Battery"};
 State state = INITIALIZATION_STATE;
+State oldState = INITIALIZATION_STATE;
 
 // Pin Constants
 const int blueLED =       D7;                     // This LED is on the Electron itself
 const int userSwitch =    D5;                     // User switch with a pull-up resistor
 const int donePin =       D6;                     // This pin is used to let the watchdog timer know we are still alive
 const int wakeUpPin =     A7;                     // Pin the watchdog will ping us on
+const int hardResetPin =  D4;                       // Power Cycles the Electron and the Carrier Board
+
 
 volatile bool watchDogFlag = false;               // Flag is raised in the watchdog ISR
 
 // Timing Variables
-unsigned long webhookWaitTime = 45000;            // How long will we wair for a WebHook response
-unsigned long publishFrequency = 1000;            // How often will we publish to Particle
-unsigned long resetWait = 30000;                  // How long will we wait in ERROR_STATE until reset
-unsigned long sleepWait = 90000;                  // How long do we wait until we go to sleep
-unsigned long keepAwakeTimeStamp = 0;             // Starts the sleep clock
-unsigned long resetTimeStamp = 0;                 // When did we start waiting to reset
-unsigned long webhookTimeStamp = 0;               // Keep track of when we publish a webhook
-unsigned long lastPublish = 0;                    // When was the last time we published
+const int wakeBoundary = 1*3600 + 0*60 + 0;         // 1 hour 0 minutes 0 seconds
+const unsigned long stayAwakeLong = 90000;          // In lowPowerMode, how long to stay awake every hour
+const unsigned long webhookWait = 45000;            // How long will we wair for a WebHook response
+const unsigned long resetWait = 30000;              // How long will we wait in ERROR_STATE until reset
+const int publishFrequency = 1000;                  // We can only publish once a second
+unsigned long stayAwakeTimeStamp = 0;               // Timestamps for our timing variables..
+unsigned long stayAwake;                            // Stores the time we need to wait before napping
+unsigned long webhookTimeStamp = 0;                 // Webhooks...
+unsigned long resetTimeStamp = 0;                   // Resets - this keeps you from falling into a reset loop
+unsigned long lastPublish = 0;                      // Can only publish 1/sec on avg and 4/sec burst
+
 
 // Program Variables
 int resetCount;                                     // Counts the number of times the Electron has had a pin reset
@@ -102,7 +112,7 @@ int alertCount;                                     // Keeps track of non-reset 
 bool ledState = LOW;                                // variable used to store the last LED status, to toggle the light
 bool readyForBed = false;                           // Checks to see if steps for sleep have been completed
 bool waiting = false;
-bool doneEnabled = true;
+bool dataInFlight = true;
 const char* releaseNumber = SOFTWARERELEASENUMBER;  // Displays the release on the menu
 byte controlRegister;                               // Stores the control register values
 bool solarPowerMode;                                // Changes the PMIC settings
@@ -145,6 +155,7 @@ void setup()                                                      // Note: Disco
   pinMode(userSwitch,INPUT);                                      // Momentary contact button on board for direct user input
   pinMode(donePin,OUTPUT);                                        // To pet the watchdog
   pinMode(wakeUpPin,INPUT);                                       // This pin is active HIGH
+  pinMode(hardResetPin,OUTPUT);                     // For a hard reset active HIGH
 
   char responseTopic[125];
   String deviceID = System.deviceID();                            // Multiple Electrons share the same hook - keeps things straight
@@ -196,25 +207,32 @@ void setup()                                                      // Note: Disco
   solarPowerMode  = (0b00000100 & controlRegister);                     // Set the solarPowerMode
   verboseMode     = (0b00001000 & controlRegister);                     // Set the verboseMode
 
-  vcs.init(0x63);                                                       // Initialize the soil sensor
+  if (!vcs.init(0x63)) {                                                // Initialize the soil sensor
+    resetTimeStamp = millis();                                          // Start the reset timer
+    snprintf(StartupMessage, sizeof(StartupMessage), "Sensor failed to initialize");
+    state = ERROR_STATE;
+  }                                                
 
   PMICreset();                                                          // Executes commands that set up the PMIC for Solar charging - once we know the Solar Mode
 
   takeMeasurements();                                                   // For the benefit of monitoring the device
 
   if (!digitalRead(userSwitch)) {                                       // Rescue mode to locally take lowPowerMode so you can connect to device
-  lowPowerMode = false;                                                 // Press the user switch while resetting the device
+    lowPowerMode = false;                                               // Press the user switch while resetting the device
     controlRegister = (0b11111110 & controlRegister);                   // Turn off Low power mode
     EEPROM.write(controlRegister,MEM_MAP::controlRegisterAddr);         // Write to the EEMPROM
   }
 
-  if (!lowPowerMode && (stateOfCharge >= lowBattLimit)) connectToParticle();  // If not lowpower or sleeping, we can connect
-  connectToParticle();  // For now, let's just connect
+  if (stateOfCharge <= lowBattLimit) state = LOW_BATTERY_STATE;         // Only connect if we have battery
+  else if(!connectToParticle()) {
+    state = ERROR_STATE;                                                // We failed to connect can reset here or go to the ERROR state for remediation
+    snprintf(StartupMessage, sizeof(StartupMessage), "Failed to connect");
+  }
 
   petWatchdog();                                                        // Need to pet the watchdog as we are waking from sleep
   attachInterrupt(wakeUpPin,watchdogISR,RISING);                        // Interrupt from watchdog - need to pet when triggered
 
-  if(verboseMode) Particle.publish("Startup",StartupMessage,PRIVATE);           // Let Particle know how the startup process went
+  if(Particle.connected() && verboseMode) Particle.publish("Startup",StartupMessage,PRIVATE);   // Let Particle know how the startup process went
   lastPublish = millis();
 }
 
@@ -224,12 +242,13 @@ void loop()
   switch(state) {
   case IDLE_STATE:
     if (watchDogFlag) petWatchdog();
-    if (!waiting && lowPowerMode && millis() > (keepAwakeTimeStamp+sleepWait)) state = SLEEPING_STATE;
+    if (lowPowerMode && (millis() - stayAwakeTimeStamp) > stayAwake) state = SLEEPING_STATE;
     if (Time.hour() != currentHourlyPeriod) state = MEASURING_STATE;    // We want to report on the hour but not after bedtime
     if (stateOfCharge <= lowBattLimit) state = LOW_BATTERY_STATE;               // The battery is low - sleep
     break;
 
   case MEASURING_STATE:
+    if (verboseMode && state != oldState) publishStateTransition();
     if (!takeMeasurements())
     {
       state = ERROR_STATE;
@@ -242,7 +261,33 @@ void loop()
     else state = REPORTING_STATE;
     break;
 
+  case REPORTING_STATE:
+    if (verboseMode && state != oldState) publishStateTransition();
+    if (Particle.connected()) {
+      if (Time.hour() == 12) Particle.syncTime();                         // Set the clock each day at noon
+      sendEvent();                                                        // Send data to Ubidots
+      state = RESP_WAIT_STATE;                                            // Wait for Response
+    }
+    else state = ERROR_STATE;
+    break;
+
+  case RESP_WAIT_STATE:
+    if (verboseMode && state != oldState) publishStateTransition();
+    if (!dataInFlight)                                                // Response received back to IDLE state
+    {
+      state = IDLE_STATE;
+      stayAwake = stayAwakeLong;                                      // Keeps Electron awake after reboot - helps with recovery
+      stayAwakeTimeStamp = millis();
+    }
+    else if (millis() - webhookTimeStamp > webhookWait) {             // If it takes too long - will need to reset
+      resetTimeStamp = millis();
+      Particle.publish("spark/device/session/end", "", PRIVATE);      // If the device times out on the Webhook response, it will ensure a new session is started on next connect
+      state = ERROR_STATE;                                            // Response timed out
+    }
+    break;
+
   case SLEEPING_STATE: {                                                // This state is triggered once the park closes and runs until it opens
+    if (verboseMode && state != oldState) publishStateTransition();
     if (!readyForBed)                                                   // Only do these things once - at bedtime
     {
       if (Particle.connected()) {
@@ -265,66 +310,42 @@ void loop()
 
 
   case LOW_BATTERY_STATE: {                                             // Sleep state but leaves the fuel gauge on
-      if (Particle.connected()) {
-        if (verboseMode) {
-          waitUntil(meterParticlePublish);
-          Particle.publish("State","Low Battery - Sleeping",PRIVATE);
-          lastPublish = millis();
-        }
-        delay(1000);                                                    // Time to send last update
-        disconnectFromParticle();                                       // If connected, we need to disconned and power down the modem
+    if (verboseMode && state != oldState) publishStateTransition();
+    if (Particle.connected()) {
+      if (verboseMode) {
+        waitUntil(meterParticlePublish);
+        Particle.publish("State","Low Battery - Sleeping",PRIVATE);
+        lastPublish = millis();
       }
-      ledState = false;
-      digitalWrite(blueLED,LOW);                                        // Turn off the LED
-      int secondsToHour = (60*(60 - Time.minute()));                    // Time till the top of the hour
-      System.sleep(SLEEP_MODE_DEEP,secondsToHour);                      // Very deep sleep till the next hour - then resets
+      delay(1000);                                                    // Time to send last update
+      disconnectFromParticle();                                       // If connected, we need to disconned and power down the modem
+    }
+    ledState = false;
+    digitalWrite(blueLED,LOW);                                        // Turn off the LED
+    int secondsToHour = (60*(60 - Time.minute()));                    // Time till the top of the hour
+    System.sleep(SLEEP_MODE_DEEP,secondsToHour);                      // Very deep sleep till the next hour - then resets
     } break;
 
-  case REPORTING_STATE:                                                 // Reporting - hourly or on command
-    if (!Particle.connected()) connectToParticle();
-    else if (!waiting)
-    {
-      if (verboseMode) {
-        waitUntil(meterParticlePublish);
-        Particle.publish("State","Reporting",PRIVATE);
-        lastPublish = millis();
-      }
-      webhookTimeStamp = millis();
-      waiting = true;                                                   // Make sure we set the flag for flow through this case
-      sendEvent();                                                      // Send the data to Ubidots
-    }
-    else if (waiting && doneEnabled)
-    {
-      if (verboseMode) {
-        waitUntil(meterParticlePublish);
-        Particle.publish("State","Idle",PRIVATE);
-        lastPublish = millis();
-      }
-      state = IDLE_STATE;       // This is how we know if Ubidots got the data
-      waiting = false;
-      keepAwakeTimeStamp = millis();
-    }
-    else if (waiting && millis() >= (webhookTimeStamp + webhookWaitTime))
-    {
-      resetTimeStamp = millis();                            // Ensures we wait a respectable amount of time before resetting.
-      state = ERROR_STATE;
-      if (verboseMode) {
-        waitUntil(meterParticlePublish);
-        Particle.publish("State","Error - Reporting Timed Out",PRIVATE);
-        lastPublish = millis();
-      }
-    }
-    break;
-
-  case ERROR_STATE:                                          // To be enhanced - where we deal with errors
+  case ERROR_STATE:                                                   // To be enhanced - where we deal with errors
+    if (verboseMode && state != oldState) publishStateTransition();
     if (millis() > resetTimeStamp + resetWait)
     {
-      Particle.publish("State","ERROR_STATE - Resetting",PRIVATE);
-      delay(2000);                                          // This makes sure it goes through before reset
-      if (resetCount <= 3)  System.reset();                 // Today, only way out is reset
-      else {
-        EEPROM.write(MEM_MAP::resetCountAddr,0);            // Zero the ResetCount
-        fullModemReset();                                   // Full Modem reset and reboot
+      if (resetCount <= 3) {                                          // First try simple reset
+        if (Particle.connected()) Particle.publish("State","Error State - Reset", PRIVATE);    // Brodcast Reset Action
+        delay(2000);
+        System.reset();
+      }
+      else if (Time.now() - EEPROM.read(MEM_MAP::currentCountsTimeAddr) > 7200L) { //It has been more than two hours since a sucessful hook response
+        if (Particle.connected()) Particle.publish("State","Error State - Power Cycle", PRIVATE);  // Broadcast Reset Action
+        delay(2000);
+        EEPROM.write(MEM_MAP::resetCountAddr,0);                           // Zero the ResetCount
+        digitalWrite(hardResetPin,HIGH);                              // This will cut all power to the Electron AND the carrier board
+      }
+      else {                                                          // If we have had 3 resets - time to do something more
+        if (Particle.connected()) Particle.publish("State","Error State - Full Modem Reset", PRIVATE);            // Brodcase Reset Action
+        delay(2000);
+        EEPROM.write(MEM_MAP::resetCountAddr,0);                           // Zero the ResetCount
+        fullModemReset();                                             // Full Modem reset and reboots
       }
     }
     break;
@@ -338,25 +359,27 @@ void sendEvent()
   Particle.publish("Cellular_Soil_Hook", data, PRIVATE);
   currentHourlyPeriod = Time.hour();                                      // Change the time period
   currentDailyPeriod = Time.day();
-  doneEnabled = false;
+  dataInFlight = true;                                                // set the data inflight flag
+  webhookTimeStamp = millis();
 }
 
-void UbidotsHandler(const char *event, const char *data)  // Looks at the response from Ubidots - Will reset Photon if no successful response
-{
-  // Response Template: "{{temperature.0.status_code}}" so, I should only get a 3 digit number back
-  char dataCopy[strlen(data)+1];                                    // data needs to be copied since Particle.publish() will clear it
-  strncpy(dataCopy, data, sizeof(dataCopy));                        // Copy - overflow safe
-  if (!strlen(dataCopy)) {                                          // First check to see if there is any data
-    Particle.publish("Ubidots Hook", "No Data",PRIVATE);
+void UbidotsHandler(const char *event, const char *data)              // Looks at the response from Ubidots - Will reset Photon if no successful response
+{                                                                     // Response Template: "{{hourly.0.status_code}}" so, I should only get a 3 digit number back
+  char dataCopy[strlen(data)+1];                                      // data needs to be copied since if (Particle.connected()) Particle.publish() will clear it
+  strncpy(dataCopy, data, sizeof(dataCopy));                          // Copy - overflow safe
+  if (!strlen(dataCopy)) {                                            // First check to see if there is any data
+    if (Particle.connected()) Particle.publish("Ubidots Hook", "No Data", PRIVATE);
     return;
   }
-  int responseCode = atoi(dataCopy);                    // Response is only a single number thanks to Template
+  int responseCode = atoi(dataCopy);                                  // Response is only a single number thanks to Template
   if ((responseCode == 200) || (responseCode == 201))
   {
-    Particle.publish("State","Response Received",PRIVATE);
-    doneEnabled = true;                                   // Successful response - can pet the dog again
+    if (Particle.connected()) Particle.publish("State","Response Received", PRIVATE);
+    lastPublish = millis();
+    EEPROM.write(MEM_MAP::currentCountsTimeAddr,Time.now());          // Record the last successful Webhook Response
+    dataInFlight = false;                                             // Data has been received
   }
-  else Particle.publish("Ubidots Hook", dataCopy,PRIVATE);       // Publish the response code
+  else if (Particle.connected()) Particle.publish("Ubidots Hook", dataCopy, PRIVATE);                    // Publish the response code
 }
 
 // These are the functions that are part of the takeMeasurements call
@@ -550,6 +573,18 @@ int setLowPowerMode(String command)                                   // This is
   return 1;
 }
 
+void publishStateTransition(void)
+{
+  char stateTransitionString[40];
+  snprintf(stateTransitionString, sizeof(stateTransitionString), "From %s to %s", stateNames[oldState],stateNames[state]);
+  oldState = state;
+  if(Particle.connected()) {
+    waitUntil(meterParticlePublish);
+    Particle.publish("State Transition",stateTransitionString, PRIVATE);
+    lastPublish = millis();
+  }
+  Serial.println(stateTransitionString);
+}
 
 bool meterParticlePublish(void)
 {
