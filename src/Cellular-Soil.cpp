@@ -18,6 +18,7 @@
 // v1.04 - Still tracking down the watchdog interupt bug
 // v1.05 - Minor updates and fixes
 // v1.06 - Changed the program flow as I was not getting reliable hourly Reporting
+// v1.07 - Fixed minor bug on state transition in verbose mode
 
 void setup();
 void loop();
@@ -39,8 +40,8 @@ bool meterParticlePublish(void);
 void fullModemReset();
 void watchdogISR();
 void petWatchdog();
-#line 20 "/Users/chipmc/Documents/Maker/Particle/Projects/Cellular-Soil/src/Cellular-Soil.ino"
-#define SOFTWARERELEASENUMBER "1.06"               // Keep track of release numbers
+#line 21 "/Users/chipmc/Documents/Maker/Particle/Projects/Cellular-Soil/src/Cellular-Soil.ino"
+#define SOFTWARERELEASENUMBER "1.07"               // Keep track of release numbers
 
 // Included Libraries
 #include "math.h"
@@ -155,7 +156,7 @@ void setup()                                                      // Note: Disco
   pinMode(userSwitch,INPUT);                                      // Momentary contact button on board for direct user input
   pinMode(donePin,OUTPUT);                                        // To pet the watchdog
   pinMode(wakeUpPin,INPUT);                                       // This pin is active HIGH
-  pinMode(hardResetPin,OUTPUT);                     // For a hard reset active HIGH
+  pinMode(hardResetPin,OUTPUT);                                   // For a hard reset active HIGH
 
   char responseTopic[125];
   String deviceID = System.deviceID();                            // Multiple Electrons share the same hook - keeps things straight
@@ -241,6 +242,7 @@ void loop()
 
   switch(state) {
   case IDLE_STATE:
+    if (verboseMode && state != oldState) publishStateTransition();
     if (watchDogFlag) petWatchdog();
     if (lowPowerMode && (millis() - stayAwakeTimeStamp) > stayAwake) state = SLEEPING_STATE;
     if (Time.hour() != currentHourlyPeriod) state = MEASURING_STATE;    // We want to report on the hour but not after bedtime

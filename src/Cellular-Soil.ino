@@ -222,8 +222,8 @@ void loop()
     if (verboseMode && state != oldState) publishStateTransition();
     if (watchDogFlag) petWatchdog();
     if (lowPowerMode && (millis() - stayAwakeTimeStamp) > stayAwake) state = SLEEPING_STATE;
-    if (Time.hour() != currentHourlyPeriod) state = MEASURING_STATE;    // We want to report on the hour but not after bedtime
-    if (stateOfCharge <= lowBattLimit) state = LOW_BATTERY_STATE;               // The battery is low - sleep
+    if (Time.hour() != currentHourlyPeriod) state = MEASURING_STATE;     // We want to report on the hour but not after bedtime
+    if (stateOfCharge <= lowBattLimit) state = LOW_BATTERY_STATE;        // The battery is low - sleep
     break;
 
   case MEASURING_STATE:
