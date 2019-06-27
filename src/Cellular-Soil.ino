@@ -96,6 +96,7 @@ byte controlRegister;                               // Stores the control regist
 bool solarPowerMode;                                // Changes the PMIC settings
 bool verboseMode;                                   // Enables more active communications for configutation and setup
 
+
 // Variables Related To Particle Mobile Application Reporting
 char SignalString[64];                     // Used to communicate Wireless RSSI and Description
 const char* radioTech[8] = {"Unknown","None","WiFi","GSM","UMTS","CDMA","LTE","IEEE802154"};
@@ -419,16 +420,17 @@ bool connectToParticle() {
   else return 0;                                                    // Failed to connect
 }
 
-bool disconnectFromParticle()
+bool disconnectFromParticle()                                     // Ensures we disconnect cleanly from Particle
 {
-  Particle.disconnect();                                          // Otherwise Electron will attempt to reconnect on wake
+  Particle.disconnect();
+  waitFor(notConnected, 15000);                                   // make sure before turning off the cellular modem                              
   Cellular.off();
-  delay(1000);                                                    // Bummer but only should happen once an hour
+  delay(2000);                                                    // Bummer but only should happen once an hour
   return true;
 }
 
-bool notConnected() {
-  return !Particle.connected();                             // This is a requirement to use waitFor
+bool notConnected() {                                             // Companion function for disconnectFromParticle
+    return !Particle.connected();
 }
 
 // Power Management function
